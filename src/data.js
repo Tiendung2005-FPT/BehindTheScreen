@@ -3,6 +3,7 @@ export const DURATION = 90 // giây
 export const COOLDOWN_MS = 1000 // thời gian chờ giữa 2 bình luận của cùng 1 người
 
 export const POST = {
+  victim: "Minh Anh",
   user: 'Hoàng Nam',
   text: 'Cảnh báo mọi người!!! Nghe nói "Minh Anh" lớp 11A2 ăn cắp tiền quỹ lớp của mấy bạn trong tổ, xong còn lên mặt dạy đời người khác. Mình đọc được trên group kín, ai quen thì né gấp nha 😱 Chia sẻ cho mọi người cùng biết!',
 }

@@ -69,7 +69,7 @@ export default function Screen() {
                 </AnimatePresence>
               </div>
               <div className="w-80 h-80"><Avatar mood={mood} /></div>
-              <p className="mt-4 text-xl text-slate-300">{POST.user}</p>
+              <p className="mt-4 text-xl text-slate-300">{POST.victim}</p>
               {i >= negs.length && (
                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 text-3xl font-bold text-center">
                   Mạng xã hội là ảo — tổn thương là thật.
