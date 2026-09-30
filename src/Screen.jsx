@@ -19,10 +19,15 @@ export default function Screen() {
   const g = useGame()
   const left = useCountdown(g.endsAt)
   const reveal = g.phase === 'reveal'
-  const negs = useMemo(() => g.feed.filter((c) => c.type === 'negative'), [g.feed, reveal])
+
+  // Giới hạn tối đa 20 bình luận tiêu cực (lấy 20 bình luận gần nhất)
+  const negs = useMemo(
+    () => g.feed.filter((c) => c.type === 'negative').slice(-20),
+    [g.feed, reveal]
+  )
   const [i, setI] = useState(0)
 
-  // Pha 2: phát lại từng bình luận xấu, biểu cảm đổi dần
+  // Pha 2: phát lại từng bình luận xấu, biểu cảm đổi dần (tối đa 20 * 1.8s = 36s)
   useEffect(() => {
     if (!reveal) return setI(0)
     const t = setInterval(() => setI((x) => Math.min(x + 1, negs.length)), 1800)
