@@ -7,8 +7,8 @@ const MOOD_DATA = {
     blushOpacity: 0.65,
     mouthD: 'M44 68 Q50 77 56 68 Z', // happy open smile showing tongue
     mouthFill: '#FF6B8B',
-    browL: { y1: 34, y2: 36, rotate: -4 },
-    browR: { y1: 36, y2: 34, rotate: 4 },
+    browL: { y1: 34, y2: 36 },
+    browR: { y1: 36, y2: 34 },
     eyeScaleY: 1,
     pupilScale: 1.15,
     sparkleOpacity: 1,
@@ -20,8 +20,8 @@ const MOOD_DATA = {
     blushOpacity: 0.2,
     mouthD: 'M44 71 Q50 68 56 71', // slight flat wavy droop
     mouthFill: 'transparent',
-    browL: { y1: 37, y2: 36, rotate: 2 },
-    browR: { y1: 36, y2: 37, rotate: -2 },
+    browL: { y1: 37, y2: 36 },
+    browR: { y1: 36, y2: 37 },
     eyeScaleY: 0.35, // half-lidded sleepy eyes
     pupilScale: 0.8,
     sparkleOpacity: 0.2,
@@ -33,8 +33,8 @@ const MOOD_DATA = {
     blushOpacity: 0.1,
     mouthD: 'M45 72 Q48 67 50 72 Q52 67 55 72', // trembling wobbly mouth
     mouthFill: 'transparent',
-    browL: { y1: 32, y2: 38, rotate: -14 },
-    browR: { y1: 38, y2: 32, rotate: 14 },
+    browL: { y1: 38, y2: 32 },
+    browR: { y1: 32, y2: 38 },
     eyeScaleY: 1.1,
     pupilScale: 0.45, // shrunk anime terror pupils
     sparkleOpacity: 0,
@@ -42,17 +42,20 @@ const MOOD_DATA = {
     transition: { repeat: Infinity, duration: 0.15 },
   },
   cry: {
-    skin: '#FFF2F2',
-    blushOpacity: 0.85, // heavily flushed
-    mouthD: 'M43 74 Q50 67 57 74 Z', // quiver sob mouth
-    mouthFill: '#993355',
-    browL: { y1: 33, y2: 39, rotate: -18 },
-    browR: { y1: 39, y2: 33, rotate: 18 },
-    eyeScaleY: 0.7,
-    pupilScale: 0.9,
-    sparkleOpacity: 0.9,
-    headShake: { y: [0, 2.5, 0], rotate: [-1, 1, -1] },
-    transition: { repeat: Infinity, duration: 0.8, ease: 'easeInOut' },
+    skin: '#FFF3F3', // tender flushed skin
+    blushOpacity: 0.8, // flushed cheeks
+    // Soft quivering whimpering mouth (downcurved & trembling)
+    mouthD: 'M44 72 Q50 68 56 72',
+    mouthFill: 'transparent',
+    // Classic anime sad brows (inner corners arched up, outer corners drooping down)
+    browL: { y1: 37, y2: 31 },
+    browR: { y1: 31, y2: 37 },
+    eyeScaleY: 0.85, // slightly tightened/squeezed eyes
+    pupilScale: 1.05,
+    sparkleOpacity: 1,
+    // Gentle sniffing/sobbing hiccup
+    headShake: { y: [0, -1.8, 0, 0.8, 0] },
+    transition: { repeat: Infinity, duration: 1.4, ease: 'easeInOut' },
   },
 }
 
@@ -69,24 +72,24 @@ export default function AnimeAvatar({ mood = 'happy' }) {
       <defs>
         {/* Soft anime cheek blush gradient */}
         <radialGradient id="blushGrad" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#FF4B72" stopOpacity="0.7" />
+          <stop offset="0%" stopColor="#FF4B72" stopOpacity="0.75" />
           <stop offset="100%" stopColor="#FF4B72" stopOpacity="0" />
         </radialGradient>
 
-        {/* Rich anime eye gradient */}
+        {/* Anime eye iris gradient */}
         <linearGradient id="eyeIris" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#4A1E6D" />
           <stop offset="45%" stopColor="#7B2CBF" />
           <stop offset="100%" stopColor="#C77DFF" />
         </linearGradient>
 
-        {/* Tear gradient */}
-        <linearGradient id="tearGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#BAE6FD" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.95" />
+        {/* Shimmering tear highlight */}
+        <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#67E8F9" stopOpacity="0.5" />
         </linearGradient>
 
-        {/* Scared shadow drop */}
+        {/* Scared shadow gradient */}
         <linearGradient id="dreadGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#6366F1" stopOpacity="0.45" />
           <stop offset="100%" stopColor="#6366F1" stopOpacity="0" />
@@ -94,28 +97,22 @@ export default function AnimeAvatar({ mood = 'happy' }) {
       </defs>
 
       {/* --- BACK HAIR & TWIN LOCKS --- */}
-      <path
-        d="M20 42 C12 60 14 85 24 88 C27 82 25 60 27 50"
-        fill="#2B263E"
-      />
-      <path
-        d="M80 42 C88 60 86 85 76 88 C73 82 75 60 73 50"
-        fill="#2B263E"
-      />
+      <path d="M20 42 C12 60 14 85 24 88 C27 82 25 60 27 50" fill="#2B263E" />
+      <path d="M80 42 C88 60 86 85 76 88 C73 82 75 60 73 50" fill="#2B263E" />
       <circle cx="50" cy="50" r="37" fill="#241E34" />
 
       {/* --- EARS --- */}
       <circle cx="21" cy="54" r="5" fill="#FAD1C5" />
       <circle cx="79" cy="54" r="5" fill="#FAD1C5" />
 
-      {/* --- FACE BASE (Anime tapered chin) --- */}
+      {/* --- FACE BASE --- */}
       <motion.path
         animate={{ fill: m.skin }}
         transition={{ duration: 0.3 }}
         d="M23 48 C23 34 35 27 50 27 C65 27 77 34 77 48 C77 65 63 78 50 82 C37 78 23 65 23 48 Z"
       />
 
-      {/* Scared / Dread Shadow on forehead */}
+      {/* Scared / Dread Shadow */}
       {mood === 'scared' && (
         <motion.path
           initial={{ opacity: 0 }}
@@ -130,7 +127,7 @@ export default function AnimeAvatar({ mood = 'happy' }) {
       <motion.ellipse
         cx="33"
         cy="59"
-        rx="8"
+        rx="8.5"
         ry="4.5"
         fill="url(#blushGrad)"
         animate={{ opacity: m.blushOpacity }}
@@ -139,15 +136,24 @@ export default function AnimeAvatar({ mood = 'happy' }) {
       <motion.ellipse
         cx="67"
         cy="59"
-        rx="8"
+        rx="8.5"
         ry="4.5"
         fill="url(#blushGrad)"
         animate={{ opacity: m.blushOpacity }}
         transition={{ duration: 0.2 }}
       />
-      {/* Subtle flushed nose tip for crying */}
+
+      {/* Reddened nose bridge (gives that vulnerable crying look) */}
       {mood === 'cry' && (
-        <ellipse cx="50" cy="62" rx="3.5" ry="2" fill="#FF5C7A" opacity="0.6" />
+        <motion.ellipse
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.55 }}
+          cx="50"
+          cy="60"
+          rx="4.5"
+          ry="2"
+          fill="#FF4B72"
+        />
       )}
 
       {/* Tiny anime nose */}
@@ -164,7 +170,7 @@ export default function AnimeAvatar({ mood = 'happy' }) {
             x1={cx - 7}
             x2={cx + 7}
             animate={{ y1: brow.y1, y2: brow.y2 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25 }}
             stroke="#2E243A"
             strokeWidth="2.4"
             strokeLinecap="round"
@@ -176,7 +182,7 @@ export default function AnimeAvatar({ mood = 'happy' }) {
             animate={{ scaleY: m.eyeScaleY }}
             transition={{ duration: 0.25 }}
           >
-            {/* Sclera (Eye White) */}
+            {/* Sclera */}
             <ellipse cx={cx} cy="50" rx="9" ry="8" fill="#FFFFFF" />
 
             {/* Iris */}
@@ -194,11 +200,11 @@ export default function AnimeAvatar({ mood = 'happy' }) {
               transition={{ duration: 0.2 }}
             />
 
-            {/* Specular Sparkles */}
+            {/* Glossy Highlights */}
             <motion.circle
               cx={cx - 2.8}
-              cy="47.5"
-              r="2.5"
+              cy={mood === 'cry' ? 49 : 47.5}
+              r={mood === 'cry' ? 3.2 : 2.5}
               fill="#FFFFFF"
               animate={{ opacity: m.sparkleOpacity }}
             />
@@ -218,26 +224,51 @@ export default function AnimeAvatar({ mood = 'happy' }) {
               strokeWidth="2.8"
               strokeLinecap="round"
             />
-            {/* Eyelash wing flick */}
+            {/* Eyelash wing */}
             <path
               d={i === 0 ? `M${cx - 9} 47 L${cx - 12} 44.5` : `M${cx + 9} 47 L${cx + 12} 44.5`}
               stroke="#1F162B"
               strokeWidth="1.8"
               strokeLinecap="round"
             />
+
+            {/* Welled-up glassy water pool along bottom eyelid */}
+            {mood === 'cry' && (
+              <motion.path
+                d={`M${cx - 6} 53 Q${cx} 57.5 ${cx + 6} 53 Q${cx} 55.5 ${cx - 6} 53 Z`}
+                fill="url(#waterGrad)"
+                animate={{ opacity: [0.75, 1, 0.75] }}
+                transition={{ repeat: Infinity, duration: 1.2 }}
+              />
+            )}
           </motion.g>
         </g>
       ))}
 
       {/* --- MOUTH --- */}
-      <motion.path
-        animate={{ d: m.mouthD, fill: m.mouthFill }}
-        stroke="#1F162B"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        transition={{ duration: 0.2 }}
-      />
+      <g>
+        {/* Main mouth stroke */}
+        <motion.path
+          animate={{ d: m.mouthD, fill: m.mouthFill }}
+          stroke="#1F162B"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          transition={{ duration: 0.25 }}
+        />
+        {/* Subtle whimpering lower-lip shadow for crying */}
+        {mood === 'cry' && (
+          <motion.path
+            d="M48 74.5 Q50 75.8 52 74.5"
+            stroke="#C97A8E"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            fill="none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.8 }}
+          />
+        )}
+      </g>
 
       {/* --- FRONT ANIME BANGS & HAIR --- */}
       <path d="M22 45 C23 58 27 68 29 72 C28 65 26 55 26 46 Z" fill="#3D3456" />
@@ -254,7 +285,7 @@ export default function AnimeAvatar({ mood = 'happy' }) {
            C30 43 25 43 22 42 Z"
         fill="#362E4E"
       />
-      {/* Bangs highlight strip */}
+      {/* Bangs highlight */}
       <path
         d="M28 36 Q50 30 72 36"
         stroke="#594B7D"
@@ -264,18 +295,18 @@ export default function AnimeAvatar({ mood = 'happy' }) {
         opacity="0.75"
       />
 
-      {/* Ahoge (Cowlick on top of hair) */}
+      {/* Ahoge (Cowlick) */}
       <motion.path
         d="M50 26 Q47 13 41 11 Q46 16 48 25"
         fill="#362E4E"
-        animate={{ rotate: [-2, 4, -2] }}
+        animate={mood === 'cry' ? { rotate: [-10, -5, -10] } : { rotate: [-2, 4, -2] }}
         style={{ originX: '50px', originY: '26px' }}
-        transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+        transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
       />
 
       {/* --- MOOD SPECIFIC FX --- */}
 
-      {/* Tired: Anime sweat drop on forehead */}
+      {/* Tired: Sweat drop */}
       <AnimatePresence>
         {mood === 'tired' && (
           <motion.path
@@ -291,31 +322,57 @@ export default function AnimeAvatar({ mood = 'happy' }) {
         )}
       </AnimatePresence>
 
-      {/* Cry: Anime tears streaming from both eyes */}
+      {/* Cry: Glistening tear trails & rolling droplets */}
       <AnimatePresence>
         {mood === 'cry' && (
-          <>
-            {[32, 68].map((x, i) => (
-              <g key={x}>
-                <motion.path
-                  d={`M${x - 2} 54 Q${x - 4} 68 ${x - 1} 84 Q${x + 3} 68 ${x + 2} 54 Z`}
-                  fill="url(#tearGrad)"
-                  initial={{ scaleY: 0, opacity: 0 }}
-                  animate={{ scaleY: [0.85, 1.1, 0.85], opacity: 0.95 }}
-                  transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.15 }}
-                  style={{ originY: '54px' }}
-                />
-                <motion.ellipse
-                  cx={x}
-                  rx="2"
-                  ry="3"
-                  fill="#7DD3FC"
-                  animate={{ cy: [78, 96], opacity: [1, 0] }}
-                  transition={{ repeat: Infinity, duration: 0.8, delay: i * 0.35, ease: 'easeIn' }}
-                />
-              </g>
-            ))}
-          </>
+          <motion.g
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Delicate glistening tear trails running down cheeks */}
+            <path
+              d="M32 55 Q30 65 31 75"
+              fill="none"
+              stroke="#BAE6FD"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              opacity="0.85"
+            />
+            <path
+              d="M68 55 Q70 65 69 75"
+              fill="none"
+              stroke="#BAE6FD"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              opacity="0.85"
+            />
+
+            {/* Tear droplet falling from left cheek */}
+            <motion.ellipse
+              cx="31"
+              rx="1.6"
+              ry="2.4"
+              fill="#E0F2FE"
+              stroke="#7DD3FC"
+              strokeWidth="0.5"
+              animate={{ cy: [56, 78], opacity: [0, 1, 0] }}
+              transition={{ repeat: Infinity, duration: 1.2, ease: 'easeIn' }}
+            />
+
+            {/* Tear droplet falling from right cheek (offset timing) */}
+            <motion.ellipse
+              cx="69"
+              rx="1.6"
+              ry="2.4"
+              fill="#E0F2FE"
+              stroke="#7DD3FC"
+              strokeWidth="0.5"
+              animate={{ cy: [56, 78], opacity: [0, 1, 0] }}
+              transition={{ repeat: Infinity, duration: 1.2, delay: 0.6, ease: 'easeIn' }}
+            />
+          </motion.g>
         )}
       </AnimatePresence>
     </motion.svg>

@@ -7,13 +7,19 @@ import Avatar from './Avatar'
 
 const key = new URLSearchParams(location.search).get('key') || 'host'
 const host = (a) => socket.emit('host', key, a)
-const color = { positive: 'text-emerald-300', neutral: 'text-slate-300', negative: 'text-slate-100' }
+
+// Đồng bộ màu chữ với màn hình người chơi:
+const color = {
+  positive: 'text-green-300',
+  neutral: 'text-amber-200',
+  negative: 'text-red-400'
+}
 
 export default function Screen() {
   const g = useGame()
   const left = useCountdown(g.endsAt)
   const reveal = g.phase === 'reveal'
-  const negs = useMemo(() => g.feed.filter((c) => c.type === 'negative'), [reveal])
+  const negs = useMemo(() => g.feed.filter((c) => c.type === 'negative'), [g.feed, reveal])
   const [i, setI] = useState(0)
 
   // Pha 2: phát lại từng bình luận xấu, biểu cảm đổi dần
@@ -29,7 +35,11 @@ export default function Screen() {
   return (
     <div className="h-screen flex flex-col p-8 overflow-hidden">
       <div className="fixed top-2 right-2 flex gap-2 opacity-20 hover:opacity-100 text-xs z-50">
-        {['start', 'summary', 'reveal', 'reset'].map((a) => <button key={a} onClick={() => host(a)} className="bg-slate-700 px-2 py-1 rounded">{a}</button>)}
+        {['start', 'summary', 'reveal', 'reset'].map((a) => (
+          <button key={a} onClick={() => host(a)} className="bg-slate-700 px-2 py-1 rounded">
+            {a}
+          </button>
+        ))}
       </div>
 
       {g.phase === 'lobby' && (
@@ -51,7 +61,7 @@ export default function Screen() {
               <AnimatePresence initial={false}>
                 {g.feed.slice(-14).map((c) => (
                   <motion.div key={c.key} layout initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
-                    className={`rounded-lg bg-slate-900 px-4 py-2 flex justify-between gap-4 ${color[c.type]}`}>
+                    className={`rounded-lg bg-slate-900 px-4 py-2 flex justify-between gap-4 ${color[c.type] || 'text-white'}`}>
                     <span><b className="text-slate-500 mr-2">{c.by}</b>{c.text}</span>
                     <span className="text-pink-400 shrink-0">👍 {c.likes}</span>
                   </motion.div>
@@ -63,7 +73,7 @@ export default function Screen() {
           {reveal && (
             <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1 }}
               className="flex-1 flex flex-col items-center justify-center">
-              <div className="h-20 mb-4 text-2xl text-center text-red-300 max-w-xl">
+              <div className="h-20 mb-4 text-2xl text-center text-red-400 max-w-xl">
                 <AnimatePresence mode="wait">
                   {current && <motion.p key={current.key} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>“{current.text}”</motion.p>}
                 </AnimatePresence>

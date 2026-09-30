@@ -5,11 +5,18 @@ import { COMMENTS, POST, COOLDOWN_MS } from './data'
 
 const by = (t) => COMMENTS.filter((c) => c.type === t)
 const pick1 = (a) => a[Math.floor(Math.random() * a.length)]
-// Luôn có ít nhất 1 comment của mỗi loại + 1 comment ngẫu nhiên, rồi xáo trộn
+
+// Lấy đúng 3 bình luận: 1 positive, 1 neutral, 1 negative rồi xáo trộn
 function makeOptions() {
-  const three = ['positive', 'neutral', 'negative'].map((t) => pick1(by(t)))
-  const extra = pick1(COMMENTS.filter((c) => !three.includes(c)))
-  return [...three, extra].sort(() => Math.random() - 0.5)
+  return ['positive', 'neutral', 'negative']
+    .map((t) => pick1(by(t)))
+    .sort(() => Math.random() - 0.5)
+}
+
+const TYPE_COLORS = {
+  positive: 'text-green-300',
+  neutral: 'text-amber-200',
+  negative: 'text-red-400',
 }
 
 export default function Audience() {
@@ -63,7 +70,7 @@ export default function Audience() {
           {res ? (
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
               className="rounded-xl bg-slate-800 p-6 text-center">
-              <p className="text-sm text-slate-300">“{res.text}”</p>
+              <p className={`text-sm ${TYPE_COLORS[res.type] || 'text-slate-300'}`}>“{res.text}”</p>
               <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
                 className="text-6xl font-black text-pink-400 mt-4">+{res.likes} 👍</motion.p>
               <p className="mt-3 text-slate-300">Tổng điểm: <b>{score}</b></p>
@@ -76,8 +83,14 @@ export default function Audience() {
           ) : (
             <div className="flex flex-col gap-3">
               {opts.map((c) => (
-                <motion.button key={c.id} whileTap={{ scale: 0.96 }} onClick={() => choose(c)}
-                  className="text-left rounded-xl bg-slate-700 hover:bg-slate-600 p-4">{c.text}</motion.button>
+                <motion.button
+                  key={c.id}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => choose(c)}
+                  className={`text-left rounded-xl bg-slate-700 hover:bg-slate-600 p-4 transition-colors ${TYPE_COLORS[c.type] || 'text-white'}`}
+                >
+                  {c.text}
+                </motion.button>
               ))}
             </div>
           )}
