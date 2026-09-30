@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { socket, useGame, useCountdown } from './socket'
-import { COMMENTS, POST } from './data'
+import { COMMENTS, POST, COOLDOWN_MS } from './data'
 
 const by = (t) => COMMENTS.filter((c) => c.type === t)
 const pick1 = (a) => a[Math.floor(Math.random() * a.length)]
@@ -16,7 +16,8 @@ export default function Audience() {
   const g = useGame()
   const [name, setName] = useState('')
   const [opts, setOpts] = useState(makeOptions)
-  const [gain, setGain] = useState(null)
+  const [res, setRes] = useState(null) // kết quả của bình luận vừa chọn (đang cooldown)
+  const [score, setScore] = useState(0)
   const [me, setMe] = useState(null)
   const left = useCountdown(g.endsAt)
 
@@ -27,10 +28,17 @@ export default function Audience() {
     return () => { socket.off('connect', join); socket.off('me', setMe) }
   }, [])
 
+  // Mỗi lượt chơi mới: reset điểm
+  useEffect(() => { setScore(0); setRes(null); setOpts(makeOptions()) }, [g.endsAt])
+
   const choose = (c) => {
-    socket.emit('pick', c.id)
-    setGain({ key: Date.now(), n: c.points })
-    setOpts(makeOptions())
+    if (res) return
+    socket.emit('pick', c.id, (r) => {
+      if (!r?.ok) return
+      setScore(r.score)
+      setRes({ text: c.text, type: c.type, likes: r.likes })
+      setTimeout(() => { setRes(null); setOpts(makeOptions()) }, COOLDOWN_MS)
+    })
   }
 
   return (
@@ -45,18 +53,34 @@ export default function Audience() {
             <p className="font-bold">{POST.user}</p>
             <p className="text-sm mt-1">{POST.text}</p>
           </div>
-          <div className="flex justify-between text-sm">
-            <span>⏱ {left}s</span>
-            <span className="relative">👍 Kiếm nhiều like nhất!
-              <AnimatePresence>{gain && <motion.b key={gain.key} initial={{ y: 0, opacity: 1 }} animate={{ y: -30, opacity: 0 }} className="absolute right-0 text-pink-400">+{gain.n}</motion.b>}</AnimatePresence>
+          <div className="flex justify-between items-center">
+            <span className="text-sm">⏱ {left}s</span>
+            <span className="text-sm">Tổng điểm:{' '}
+              <motion.b key={score} initial={{ scale: 1.6 }} animate={{ scale: 1 }} className="inline-block text-xl text-pink-400">{score}</motion.b>
             </span>
           </div>
-          <div className="flex flex-col gap-3">
-            {opts.map((c) => (
-              <motion.button key={c.id} whileTap={{ scale: 0.96 }} onClick={() => choose(c)}
-                className="text-left rounded-xl bg-slate-700 hover:bg-slate-600 p-4">{c.text}</motion.button>
-            ))}
-          </div>
+
+          {res ? (
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+              className="rounded-xl bg-slate-800 p-6 text-center">
+              <p className="text-sm text-slate-300">“{res.text}”</p>
+              <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+                className="text-6xl font-black text-pink-400 mt-4">+{res.likes} 👍</motion.p>
+              <p className="mt-3 text-slate-300">Tổng điểm: <b>{score}</b></p>
+              <div className="h-1.5 bg-slate-700 rounded mt-5 overflow-hidden">
+                <motion.div className="h-full bg-pink-400" initial={{ width: '100%' }} animate={{ width: '0%' }}
+                  transition={{ duration: COOLDOWN_MS / 1000, ease: 'linear' }} />
+              </div>
+              <p className="text-xs text-slate-500 mt-2">Bình luận tiếp theo sắp mở…</p>
+            </motion.div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {opts.map((c) => (
+                <motion.button key={c.id} whileTap={{ scale: 0.96 }} onClick={() => choose(c)}
+                  className="text-left rounded-xl bg-slate-700 hover:bg-slate-600 p-4">{c.text}</motion.button>
+              ))}
+            </div>
+          )}
         </>
       )}
 

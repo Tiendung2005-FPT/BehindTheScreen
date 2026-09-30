@@ -2,7 +2,7 @@ import express from 'express'
 import http from 'http'
 import path from 'path'
 import { Server } from 'socket.io'
-import { COMMENTS, DURATION } from './src/data.js'
+import { COMMENTS, DURATION, COOLDOWN_MS } from './src/data.js'
 
 const HOST_KEY = process.env.HOST_KEY || 'host'
 const app = express()
@@ -35,28 +35,30 @@ io.on('connection', (socket) => {
     players.set(socket.id, { name, score: 0, neg: 0, harm: 0 })
     cb?.({ name }); sync()
   })
-  socket.on('pick', (id) => {
-    const p = players.get(socket.id), c = COMMENTS.find((x) => x.id === id)
-    if (!p || !c || s.phase !== 'play' || Date.now() > s.endsAt) return
+  socket.on('pick', (id, cb) => {
+    const p = players.get(socket.id), c = COMMENTS.find((x) => x.id === id), now = Date.now()
+    if (!p || !c || s.phase !== 'play' || now > s.endsAt) return cb?.({ ok: false })
+    if (now < p.nextAt) return cb?.({ ok: false, until: p.nextAt }) // đang cooldown
+    p.nextAt = now + COOLDOWN_MS
     const likes = Math.max(1, c.points + Math.round((Math.random() - 0.3) * c.points * 0.2))
     p.score += likes
     if (c.type === 'negative') { p.neg++; p.harm += c.harm }
     s.feed.push({ key: Date.now() + Math.random(), text: c.text, type: c.type, likes, harm: c.harm || 0, by: p.name })
     sync()
+    cb?.({ ok: true, likes, score: p.score })
   })
   socket.on('host', (key, action) => {
     if (key !== HOST_KEY) return
     if (action === 'start') {
-      players.forEach((p) => Object.assign(p, { score: 0, neg: 0, harm: 0 }))
+      players.forEach((p) => Object.assign(p, { score: 0, neg: 0, harm: 0, nextAt: 0 }))
       s.feed = []; s.endsAt = Date.now() + DURATION * 1000
       clearTimeout(timer); timer = setTimeout(() => setPhase('summary'), DURATION * 1000 + 300)
       setPhase('play')
     } else if (action === 'summary') setPhase('summary')
     else if (action === 'reveal') setPhase('reveal')
-    else if (action === 'reset') { clearTimeout(timer); s.feed = []; players.forEach((p) => Object.assign(p, { score: 0, neg: 0, harm: 0 })); setPhase('lobby') }
+    else if (action === 'reset') { clearTimeout(timer); s.feed = []; players.forEach((p) => Object.assign(p, { score: 0, neg: 0, harm: 0, nextAt: 0 })); setPhase('lobby') }
   })
   socket.on('disconnect', () => { players.delete(socket.id); sync() })
 })
 
-const PORT = process.env.PORT || 3000
-srv.listen(PORT, '0.0.0.0', () => console.log('Server chạy tại cổng ' + PORT))
+srv.listen(3000, '0.0.0.0', () => console.log('Server chạy tại http://localhost:3000'))

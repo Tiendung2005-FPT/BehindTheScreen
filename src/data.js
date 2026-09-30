@@ -1,5 +1,6 @@
 // Dùng chung cho server + client. points = số like kiếm được. harm = mức tổn thương (chỉ tiêu cực).
 export const DURATION = 90 // giây
+export const COOLDOWN_MS = 1000 // thời gian chờ giữa 2 bình luận của cùng 1 người
 export const POST = {
   user: 'Minh Anh',
   text: 'Hôm nay mình lần đầu hát trước cả trường... mình quên lời giữa chừng 😢 Clip bị quay lại và đăng lên rồi.',
